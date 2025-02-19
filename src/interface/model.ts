@@ -32,6 +32,7 @@ interface IBASEINFO {
   model: string;
   show: boolean;
   title: string;
+  avatarShape: string;
   name: string;
   age: number;
   address: string; // 所在地址
@@ -265,6 +266,19 @@ interface ICUSTOM2 {
   [propNams: string]: any;
 }
 
+// 自定义任意模块3
+interface ICUSTOM3 {
+  iconfont: string;
+  model: string;
+  show: boolean;
+  title: string;
+  name: string;
+  abstract: string;
+  avatar: string;
+  avatarShape: string;
+  [propNams: string]: any;
+}
+
 // 全局样式主题
 interface IGlobalStyle {
   themeColor: string; // 主题色
@@ -341,5 +355,6 @@ export {
   TModelList,
   IGlobalStyle,
   ICUSTOM1,
-  ICUSTOM2
+  ICUSTOM2,
+  ICUSTOM3
 };

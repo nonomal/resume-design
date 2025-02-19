@@ -1,6 +1,6 @@
 <template>
   <div class="template-card-box" @mouseover="mouseover" @mouseleave="mouseleave">
-    <img :src="cardData.previewUrl" alt="" srcset="" />
+    <img :src="type === 'old' ? cardData.previewUrl : cardData.template_cover" alt="" srcset="" />
     <!-- 遮罩层 -->
     <div v-show="isShowLayer" class="mask-layer">
       <div class="delete-box" @click="deleteUserResume">
@@ -12,11 +12,15 @@
 </template>
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { ITempList } from '@/template/type';
   import { ElMessageBox } from 'element-plus';
   import 'element-plus/es/components/message-box/style/index';
+  import { openGlobalLoading } from '@/utils/common';
+  import appStore from '@/store';
+  import { storeToRefs } from 'pinia';
+
   const props = defineProps<{
-    cardData: ITempList;
+    cardData: any;
+    type: string;
   }>();
   const emit = defineEmits(['delete']);
 
@@ -30,15 +34,26 @@
   };
 
   // 点击继续制作
+  const { resetResumeJson } = appStore.useCreateTemplateStore;
+  const { selectedModuleId } = storeToRefs(appStore.useCreateTemplateStore);
   const router = useRouter();
   const toDesign = () => {
     console.log(props.cardData);
-    router.push({
-      path: '/designer',
-      query: {
-        id: props.cardData.ID
-      }
-    });
+    if (props.type === 'old') {
+      router.push({
+        path: '/designer',
+        query: {
+          id: props.cardData.ID
+        }
+      });
+    } else {
+      openGlobalLoading(); // 等待动画层
+      resetResumeJson(); // 重置json数据
+      selectedModuleId.value = ''; // 重置选中模块
+      router.push({
+        path: `/designResume/${props.cardData.template_id}`
+      });
+    }
   };
 
   // 点击删除简历
@@ -49,7 +64,11 @@
       type: 'warning'
     })
       .then(async () => {
-        emit('delete', props.cardData.ID);
+        if (props.type === 'old') {
+          emit('delete', props.cardData.ID);
+        } else {
+          emit('delete', props.cardData._id);
+        }
       })
       .catch(() => {});
   };

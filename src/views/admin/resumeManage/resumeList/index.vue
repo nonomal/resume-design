@@ -46,8 +46,10 @@
   <Pagination
     :total="total"
     :limit="limit"
+    is-page-sizes
     :current-page="currentPage"
     @handle-current-change="handleCurrentChange"
+    @handle-size-change="handleSizeChange"
   ></Pagination>
 
   <!-- 预览弹窗 -->
@@ -90,7 +92,7 @@
   // 查询用户简历列表
   let tableData = ref<any>([]);
   const page = ref<number>(1);
-  const limit = ref<number>(15);
+  const limit = ref<number>(10);
   const total = ref<number>(0);
   const currentPage = ref<number>(1);
   const getAllUserResumeList = async () => {
@@ -115,6 +117,13 @@
   // 改变页码时
   const handleCurrentChange = (currentPage: number) => {
     page.value = currentPage;
+    getAllUserResumeList();
+  };
+
+  // 改变每页数量
+  const handleSizeChange = (pageSize: number) => {
+    limit.value = pageSize;
+    console.log('改变每页数量', pageSize);
     getAllUserResumeList();
   };
 

@@ -10,15 +10,19 @@
             formatDate(item.date)
           }}</li>
           <!-- 公司名称 -->
-          <li class="list-title">{{ item.companyName }}</li>
+          <li v-show="modelData.isShow.companyName" class="list-title">{{ item.companyName }}</li>
           <!-- 主要职责 -->
-          <li class="list-title">{{ item.posts }}</li>
+          <li v-show="modelData.isShow.posts" class="list-title">{{ item.posts }}</li>
         </ul>
         <!-- 简述 -->
         <div class="job-content">
           <div class="content-list">
             <ul>
-              <li v-for="(list, j) in item.jobContent" :key="j">{{ list.content }}</li>
+              <li
+                v-for="(list, j) in item.jobContent"
+                :key="j"
+                v-dompurify-html="list.content"
+              ></li>
             </ul>
           </div>
         </div>

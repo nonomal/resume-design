@@ -10,9 +10,13 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+certs/fullchain.crt
+certs/private.pem
+certs/maobucv.crt
+certs/maobucv.pem
 
-# auto-import.d.ts
-# components.d.ts
+auto-import.d.ts
+components.d.ts
 
 *.local
 

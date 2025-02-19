@@ -19,10 +19,19 @@
     <div class="viewer-box">
       <!-- 模板作者 -->
       <div class="create-user">
-        <el-avatar v-if="cardData.userInfo.avatar" :size="30" :src="cardData.userInfo.avatar" />
-        <span class="name">{{ cardData.userInfo.name }}</span>
+        <template v-if="cardData.userInfo">
+          <el-avatar v-if="cardData.userInfo.avatar" :size="30" :src="cardData.userInfo.avatar" />
+          <span class="name">{{ cardData.userInfo.name }}</span>
+        </template>
       </div>
       <div class="icon-box">
+        <svg-icon
+          v-config:open_comment
+          icon-name="icon-pinglun1"
+          color="#a3abb1"
+          size="19px"
+        ></svg-icon>
+        <span v-config:open_comment class="number">{{ cardData.commentCount }}</span>
         <svg-icon icon-name="icon-jibenziliao" color="#a3abb1" size="19px"></svg-icon>
         <span class="number">{{ cardData.VIEWS }}</span>
       </div>
@@ -79,6 +88,10 @@
       box-shadow: 0px 16px 22px 2px rgb(0 37 58 / 24%);
       transform: translateY(2%) scale(1.03);
       background-color: #fff;
+      .viewer-box {
+        color: #949ba0;
+        transform: translateY(0%) scale(1);
+      }
     }
     .template-card-box {
       height: 400px;
@@ -159,7 +172,12 @@
         }
       }
       .icon-box {
+        display: flex;
+        align-items: center;
         margin-right: 5px;
+        .svg-icon {
+          margin-left: 10px;
+        }
         .number {
           margin-left: 5px;
         }

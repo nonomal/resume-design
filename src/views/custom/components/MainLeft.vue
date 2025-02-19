@@ -47,7 +47,7 @@
                   }"
                   @click="addModel(element)"
                 >
-                  <el-tooltip class="box-item" effect="light" :enterable="false">
+                  <el-tooltip class="box-item" effect="light" :enterable="false" placement="right">
                     <template #content>
                       <div class="toolTip-box">
                         <img
@@ -186,7 +186,7 @@
             background-color: rgba(#2cbd99, 0.2);
           }
           p {
-            font-size: 9px;
+            font-size: 12px;
             color: #2cbd99;
             transform: scale(0.9);
           }

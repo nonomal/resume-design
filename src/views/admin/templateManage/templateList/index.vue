@@ -5,7 +5,7 @@
     <el-table-column prop="EMAIL" label="创建邮箱" />
     <el-table-column prop="previewUrl" label="封面预览">
       <template #default="scope">
-        <img class="preview-img" :src="scope.row.previewUrl" alt="" srcset="" />
+        <img v-viewer class="preview-img" :src="scope.row.previewUrl" alt="" srcset="" />
       </template>
     </el-table-column>
     <el-table-column prop="TITLE" label="模板标题" />
@@ -56,8 +56,10 @@
   <Pagination
     :total="total"
     :limit="limit"
+    is-page-sizes
     :current-page="currentPage"
     @handle-current-change="handleCurrentChange"
+    @handle-size-change="handleSizeChange"
   ></Pagination>
 
   <!-- 编辑弹窗 -->
@@ -137,6 +139,13 @@
   // 改变页码时
   const handleCurrentChange = (currentPage: number) => {
     page.value = currentPage;
+    getTemplateList();
+  };
+
+  // 改变每页数量
+  const handleSizeChange = (pageSize: number) => {
+    limit.value = pageSize;
+    console.log('改变每页数量', pageSize);
     getTemplateList();
   };
 

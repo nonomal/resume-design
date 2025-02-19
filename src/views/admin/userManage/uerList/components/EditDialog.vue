@@ -6,13 +6,13 @@
     :show-close="false"
     :close-on-click-modal="false"
     append-to-body
-    custom-class="import-json"
+    class="import-json"
   >
     <!-- 头部 -->
-    <template #title>
+    <template #header>
       <div class="header">
         <div class="header-left">
-          <h1 class="title">请在编辑器内修改简历模板数据：</h1>
+          <h1 class="title">修改用户资料</h1>
         </div>
       </div>
     </template>
@@ -37,6 +37,16 @@
         <el-select v-model="ruleForm.valid" class="m-2" placeholder="请选择状态">
           <el-option
             v-for="item in validList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="用户状态:" prop="valid">
+        <el-select v-model="ruleForm.accountStatus" class="m-2" placeholder="请选择状态">
+          <el-option
+            v-for="item in accountStatusList"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -101,6 +111,7 @@
         ruleForm.valid = newVal.valid === '已验证' ? true : false;
         ruleForm.roles = newVal.roles;
         ruleForm.profilePic = newVal.profilePic;
+        ruleForm.accountStatus = newVal.accountStatus || 1;
       }
     },
     {
@@ -115,6 +126,17 @@
     {
       label: '未验证',
       value: false
+    }
+  ]);
+  // 用户账户状态
+  const accountStatusList = reactive<Array<{ label: string; value: number }>>([
+    {
+      label: '启用',
+      value: 1
+    },
+    {
+      label: '永久封禁',
+      value: 2
     }
   ]);
   const rolesList = reactive<Array<{ label: string; value: string }>>([
@@ -138,7 +160,8 @@
     email: '',
     valid: false,
     profilePic: '',
-    roles: ''
+    roles: '',
+    accountStatus: 1
   });
 
   // 上传文件地址
@@ -249,9 +272,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    .el-dialog {
-      padding: 0;
-      margin: 0;
-    }
+    // .el-dialog {
+    //   padding: 0;
+    //   margin: 0;
+    // }
   }
 </style>

@@ -19,7 +19,7 @@
           <span class="email">********</span>
         </div>
         <div class="right">
-          <el-button type="text" @click="handleModify">修改密码</el-button>
+          <el-button link @click="handleModify">修改密码</el-button>
         </div>
       </li>
     </ul>
@@ -61,6 +61,11 @@
           display: flex;
           .label {
             width: 50px;
+          }
+        }
+        .right {
+          .el-button {
+            padding: 0;
           }
         }
       }

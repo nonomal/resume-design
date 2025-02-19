@@ -1,13 +1,9 @@
-const serverAddress =
-  import.meta.env.MODE === 'development' ? 'http://localhost:3399' : 'https://91huajian.cn';
 const CONFIG = {
-  // serverAddress: 'http://localhost:3399',
-  // serverAddress: 'https://huajian.smallpig.site',
-  serverAddress: serverAddress
+  maxUserResume: 4, // 允许每位用户最多制作多少份在线制作的简历，限制数量是为了减少数据库存储压力
+  isEmailVerify: true, // 邮箱注册后，是否需要去邮件验证。true：开启验证。false：未开启验证
+  serverAddress: import.meta.env.VITE_SERVER_ADDRESS, // 动态设置后台地址
+  smallpigAddress: 'https://maobucv.com', // 另一个后台地址，如果没有多个后台，无需填写此字段
+  aiModel: 'glm-4-flash' // ai模型
 };
-console.log('运行环境', CONFIG);
-export default CONFIG;
 
-// /www/wwwroot/huajian.smallpig.site/resume-server/resume-server/node_modules/_puppeteer@17.1.3@puppeteer/.local-chromium/linux-1036745/chrome-linux/chrome: error while loading shared libraries: libnss3.so: cannot open shared object file: No such file or directory
-// /www/wwwroot/huajian.smallpig.site/resume-server/resume-server/node_modules/_puppeteer@17.1.3@puppeteer/.local-chromium/linux-1036745/chrome-linux/chrome: error while loading shared libraries: libdrm.so.2: cannot open shared object file: No such file or directory
-// yum install mesa-libgbm
+export default CONFIG;

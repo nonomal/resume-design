@@ -33,6 +33,7 @@
   const { setUuid } = appStore.useUuidStore;
   const { refreshUuid } = storeToRefs(appStore.useUuidStore);
   const { changeResumeJsonData } = appStore.useResumeJsonNewStore;
+  const { resumeJsonNewStore } = storeToRefs(appStore.useResumeJsonNewStore); // store里的模板数据
 
   // 查询在线简历数据
   const getOnlineResume = async () => {
@@ -92,26 +93,28 @@
       background: white;
       width: 820px;
       min-height: 1160px;
-      display: table;
+      display: flex;
       position: relative;
       margin: 0 auto;
       border-radius: 5px;
-      overflow: hidden;
       box-shadow: 0px 16px 22px 2px rgb(0 37 58 / 10%);
       .design-content {
-        font-family: 'Microsoft YaHei';
+        font-family: v-bind(
+          'resumeJsonNewStore.GLOBAL_STYLE.fontFamily ? resumeJsonNewStore.GLOBAL_STYLE.fontFamily : "微软雅黑"'
+        );
       }
 
       .lines {
         z-index: 10;
-        width: 820px;
+        width: 880px;
         height: 24px;
-        background: #f3f3f3 url(@/assets/images/paging_bg.png) center top no-repeat;
+        background: #f3f3f3;
         user-select: none;
         pointer-events: none;
         position: absolute;
         display: flex;
         align-items: center;
+        left: -30px;
         .page {
           font-size: 9px;
           color: #999999;

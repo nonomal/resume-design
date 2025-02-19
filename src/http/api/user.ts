@@ -33,10 +33,19 @@ export const registerAsync: any = (data: IRegister) => {
   });
 };
 
+// 发送邮箱验证码
+export const sendCodeAsync: any = (data: any) => {
+  return http.request({
+    url: '/huajian/auth/email/sendCode',
+    method: 'post',
+    data: data
+  });
+};
+
 // 查询用户信息
 export const getUserInfoAsync: any = (email: string) => {
   return http.request({
-    url: `/huajian/users/user/${email}`,
+    url: `/huajian/integral/user/${email}`,
     method: 'get'
   });
 };
@@ -121,5 +130,22 @@ export const updatePersonInfoAsync: any = (data: any) => {
     url: '/huajian/users/updatePersonInfo',
     method: 'put',
     data: data
+  });
+};
+
+// QQ登录
+export const qqLoginASync: any = (params: any) => {
+  return http.request({
+    url: 'https://graph.qq.com/oauth2.0/authorize',
+    method: 'get',
+    params: params
+  });
+};
+
+// 判断用户是否拥有管理权限
+export const getUserPermissionAsync: any = () => {
+  return http.request({
+    url: '/huajian/users/getUserPermission',
+    method: 'get'
   });
 };

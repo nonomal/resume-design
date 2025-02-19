@@ -3,6 +3,13 @@
   <el-tabs v-model="activeName" type="card" class="demo-tabs" stretch>
     <el-tab-pane label="样式设置" name="style">
       <el-form label-width="100px" label-position="left">
+        <!-- 头像形状选择 -->
+        <el-form-item label="头像形状选择:">
+          <avatar-popover-shape-vue
+            :model-item="modelItem"
+            @change-shape="handleChangeShape"
+          ></avatar-popover-shape-vue>
+        </el-form-item>
         <!-- 公共样式属性 -->
         <common-options></common-options>
       </el-form>
@@ -64,6 +71,7 @@
   import useDesignSelectModelItem from '@/hooks/material/useDesignSelectModelItem';
   import CONFIG from '@/config';
   import appStore from '@/store';
+  import AvatarPopoverShapeVue from '@/components/AvatarPopoverShape/AvatarPopoverShape.vue';
   defineOptions({ name: 'BASE_INFO_OPTIONS' });
   // 选中的模块
   const { modelItem } = useDesignSelectModelItem();
@@ -87,11 +95,17 @@
   };
 
   const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-    if (rawFile.size / 1024 / 1024 > 10) {
-      ElMessage.error('预览图不能大于10M');
+    if (rawFile.size / 1024 / 1024 > 5) {
+      ElMessage.error('预览图不能大于5M');
       return false;
     }
     return true;
+  };
+
+  // 改变头像形状
+  const handleChangeShape = (value: string | number) => {
+    modelItem.data.avatarShape = value;
+    console.log('切换头像后的数据', modelItem.data);
   };
 </script>
 <style lang="scss">

@@ -3,6 +3,13 @@
   <el-tabs v-model="activeName" type="card" class="demo-tabs" stretch>
     <el-tab-pane label="样式设置" name="style">
       <el-form label-width="100px" label-position="left">
+        <!-- 头像形状选择 -->
+        <el-form-item label="头像形状选择:">
+          <avatar-popover-shape-vue
+            :model-item="modelItem"
+            @change-shape="handleChangeShape"
+          ></avatar-popover-shape-vue>
+        </el-form-item>
         <!-- 标题样式属性 -->
         <common-title-options
           color-label="姓名字体颜色"
@@ -19,13 +26,7 @@
           <el-input v-model="modelItem.data.name" type="text" maxlength="15" show-word-limit />
         </el-form-item>
         <el-form-item label="简介:">
-          <el-input
-            v-model="modelItem.data.abstract"
-            type="textarea"
-            maxlength="100"
-            show-word-limit
-            :rows="4"
-          />
+          <comm-editor v-model="modelItem.data.abstract"></comm-editor>
           <el-switch v-model="modelItem.data.isShow.abstract" />
         </el-form-item>
         <el-form-item label="年龄:">
@@ -82,6 +83,7 @@
   import CommonOptions from './CommonOptions.vue';
   import CommonTitleOptions from './CommonTitleOptions.vue';
   import useDesignSelectModelItem from '@/hooks/material/useDesignSelectModelItem';
+  import AvatarPopoverShapeVue from '@/components/AvatarPopoverShape/AvatarPopoverShape.vue';
   import appStore from '@/store';
   import CONFIG from '@/config';
   defineOptions({ name: 'BASE_INFO_OPTIONS' });
@@ -107,11 +109,16 @@
   };
 
   const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-    if (rawFile.size / 1024 / 1024 > 10) {
-      ElMessage.error('预览图不能大于10M');
+    if (rawFile.size / 1024 / 1024 > 5) {
+      ElMessage.error('预览图不能大于5M');
       return false;
     }
     return true;
+  };
+
+  // 改变头像形状
+  const handleChangeShape = (value: string | number) => {
+    modelItem.data.avatarShape = value;
   };
 </script>
 <style lang="scss">

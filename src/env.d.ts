@@ -9,3 +9,7 @@ declare module '*.vue' {
 declare module 'jspdf';
 declare module 'colorpicker-v3';
 declare module 'vue3-pdfjs/esm';
+declare module 'vue3-print-nb';
+declare module 'v-contextmenu';
+declare module 'vue-json-viewer';
+declare module 'json-editor-vue3';
