@@ -2,7 +2,10 @@
   <div
     v-if="item.show"
     :ref="(el) => setRefItem(el, item.keyId)"
-    class="material-model-box"
+    :class="[
+      'material-model-box',
+      { 'is-have-border': item.keyId === appStore.useSelectMaterialStore.cptKeyId }
+    ]"
     @click="selectModel"
     @mouseover="handleMouseover"
     @mouseleave="handleMouseleave"
@@ -15,7 +18,7 @@
         </div>
       </el-tooltip>
       <el-tooltip class="box-item" effect="dark" content="删除当前模块">
-        <div class="delete" @click.stop="useDeleteModel(item)">
+        <div class="delete" @click.stop="currentDelete">
           <svg-icon
             icon-name="icon-shanchu"
             class-name="icon icon-shanchu"
@@ -52,15 +55,10 @@
   const { cptKeyId } = storeToRefs(appStore.useSelectMaterialStore);
   watch(
     () => cptKeyId.value,
-    (newVal, oldVal) => {
-      // 判断是否选中复选框
-      if (oldVal && modelObj[oldVal]) {
-        modelObj[oldVal].el.style.borderColor = 'transparent';
-      }
+    (newVal) => {
       // 如果选中了模块
       if (newVal && modelObj[newVal]) {
         modelObj[newVal].el.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 该模块显示在可视区域内
-        modelObj[newVal].el.style.borderColor = '#7ec97e';
       }
     },
     {
@@ -122,7 +120,18 @@
     );
     let insert = cloneDeep(props.item);
     insert.keyId = getUuid();
+    console.log('复制当前模块', insert);
     resumeJsonNewStore.value.COMPONENTS.splice(index, 0, insert);
+  };
+
+  // 删除当前模块
+  const currentDelete = () => {
+    if (resumeJsonNewStore.value.LAYOUT === 'leftRight') {
+      emit('leftRightDelete', props.item);
+    } else {
+      // 传统布局删除
+      useDeleteModel(props.item);
+    }
   };
 </script>
 <style lang="scss" scoped>
@@ -156,7 +165,7 @@
     }
     .edit-box {
       position: absolute;
-      right: 0px;
+      right: 40px;
       top: -35px;
       display: flex;
       .copy,
@@ -177,5 +186,8 @@
         margin-left: 6px;
       }
     }
+  }
+  .is-have-border {
+    border-color: #7ec97e;
   }
 </style>

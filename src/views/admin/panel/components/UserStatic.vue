@@ -6,7 +6,7 @@
         <svg-icon
           icon-name="icon-renwu-ren"
           class-name="juejin"
-          size="70px"
+          size="60px"
           color="#fff"
         ></svg-icon>
       </div>
@@ -20,7 +20,7 @@
         <svg-icon
           icon-name="icon-xinzengyonghu"
           class-name="juejin"
-          size="70px"
+          size="60px"
           color="#fff"
         ></svg-icon>
       </div>
@@ -34,12 +34,12 @@
         <svg-icon
           icon-name="icon-yanzhengyanzhengma"
           class-name="juejin"
-          size="70px"
+          size="60px"
           color="#fff"
         ></svg-icon>
       </div>
       <div class="right">
-        <h1>{{ panelData.unVaildEamil }}</h1>
+        <h1>{{ panelData.unValidEmail }}</h1>
         <p>未验证邮箱总数</p>
       </div>
     </div>
@@ -48,7 +48,7 @@
         <svg-icon
           icon-name="icon-yanzhengyanzhengma"
           class-name="juejin"
-          size="70px"
+          size="60px"
           color="#fff"
         ></svg-icon>
       </div>
@@ -60,15 +60,15 @@
     <div class="add-user-box">
       <div class="left">
         <svg-icon
-          icon-name="icon-yuedukaohe"
+          icon-name="icon-nianduxinchou"
           class-name="juejin"
-          size="70px"
+          size="60px"
           color="#fff"
         ></svg-icon>
       </div>
       <div class="right">
-        <h1>{{ panelData.usersTotalMonth }}</h1>
-        <p>本月累计新增用户</p>
+        <h1>{{ panelData.income.toFixed(2) }}元</h1>
+        <p>总收入</p>
       </div>
     </div>
   </div>
@@ -77,26 +77,26 @@
   import { getUserPanelAsync } from '@/http/api/panel';
 
   interface IUserPanel {
+    income: number;
     todayUsers: number;
-    unVaildEamil: number;
+    unValidEmail: number;
     usersTotal: number;
-    usersTotalMonth: number;
     validEmail: number;
   }
   const panelData = reactive<IUserPanel>({
+    income: 0,
     todayUsers: 0,
-    unVaildEamil: 0,
+    unValidEmail: 0,
     usersTotal: 0,
-    usersTotalMonth: 0,
     validEmail: 0
   });
   const getUserPanel = async () => {
     const data = await getUserPanelAsync();
     if (data.data.status === 200) {
+      panelData.income = data.data.data.income;
       panelData.todayUsers = data.data.data.todayUsers;
-      panelData.unVaildEamil = data.data.data.unVaildEamil;
+      panelData.unValidEmail = data.data.data.unValidEmail;
       panelData.usersTotal = data.data.data.usersTotal;
-      panelData.usersTotalMonth = data.data.data.usersTotalMonth;
       panelData.validEmail = data.data.data.validEmail;
     } else {
       ElMessage.error(data.data.message);
@@ -108,13 +108,15 @@
   .user-statistic-box {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     .add-user-box {
       border-radius: 8px;
       overflow: hidden;
       height: 150px;
-      width: 18%;
+      width: 24%;
       box-shadow: rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px;
       display: flex;
+      margin-bottom: 30px;
       .left {
         width: 20%;
         background-color: rgb(105, 143, 105);
@@ -130,11 +132,11 @@
         align-items: center;
         justify-content: center;
         h1 {
-          font-size: 40px;
+          font-size: 30px;
           margin-bottom: 10px;
         }
         p {
-          font-size: 16px;
+          font-size: 14px;
         }
       }
     }

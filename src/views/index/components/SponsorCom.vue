@@ -1,8 +1,8 @@
 <template>
-  <div ref="sponsorRef" class="sponsor-box-wraper">
+  <div ref="sponsorRef" v-config:open_sponsor class="sponsor-box-wraper">
     <introduce-title-vue
       title="成为赞助者"
-      subtitle="由于服务器资源昂贵，网站暂无收费项目，急需大家的支持！"
+      subtitle="一杯奶茶钱，即可将您的Logo展示在下方，给您带来源源不断的流量。"
       title-color="#000"
       subtitle-color="#7f8b96"
     ></introduce-title-vue>
@@ -12,7 +12,7 @@
       </div>
       <div v-else class="sponsor-list-box">
         <ul>
-          <li v-for="(item, index) in sponsorList" :key="index">
+          <li v-for="(item, index) in sponsorList" :key="index" @click="toSponsor(item)">
             <div class="img-box">
               <img :src="item.logo_url" alt="" />
             </div>
@@ -29,8 +29,8 @@
 
     <!-- 赞助弹窗 -->
     <el-dialog
-      v-model="dialogVisible"
-      custom-class="sponsor-dialog-wrapper"
+      :model-value="dialogVisible"
+      class="sponsor-dialog-wrapper"
       title="请填写赞助信息"
       width="840px"
       :show-close="false"
@@ -140,7 +140,7 @@
   const getSponsorList = async () => {
     const data = await getSponsorListAsync();
     if (data.status === 200) {
-      sponsorList.value = data.data.filter((item: any) => item.valid);
+      sponsorList.value = data.data.filter((item: any) => item.vaild);
     } else {
       ElMessage.error(data.message);
     }
@@ -200,8 +200,8 @@
   };
 
   const beforeLogoUpload: UploadProps['beforeUpload'] = (rawFile) => {
-    if (rawFile.size / 1024 / 1024 > 10) {
-      ElMessage.error('logo不能大于10M');
+    if (rawFile.size / 1024 / 1024 > 5) {
+      ElMessage.error('logo不能大于5M');
       return false;
     }
     return true;
@@ -213,11 +213,16 @@
   };
 
   const beforePayUpload: UploadProps['beforeUpload'] = (rawFile) => {
-    if (rawFile.size / 1024 / 1024 > 10) {
-      ElMessage.error('logo不能大于10M');
+    if (rawFile.size / 1024 / 1024 > 5) {
+      ElMessage.error('logo不能大于5M');
       return false;
     }
     return true;
+  };
+
+  // 跳转至赞助列表页
+  const toSponsor = (item: any) => {
+    window.open(item.link);
   };
 
   defineExpose({
@@ -227,6 +232,7 @@
 <style lang="scss" scoped>
   .sponsor-box-wraper {
     // min-height: 50vh;
+    background-color: #fff;
     .sponsor-content-box {
       display: flex;
       flex-direction: column;
@@ -259,14 +265,18 @@
             display: flex;
             flex-direction: column;
             transition: 0.15s all ease-in-out;
+            border-radius: 8px;
             &:hover {
               transform: scale(1.1);
             }
             .img-box {
               width: 100%;
               height: 70%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               img {
-                width: 100%;
+                width: 80%;
               }
             }
             .name-box {

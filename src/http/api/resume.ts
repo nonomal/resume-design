@@ -90,9 +90,27 @@ export const deleteUserResumeAsync: any = (id: string) => {
 export const getResumePdfAsync: any = (params: any) => {
   return http.request({
     url: '/huajian/pdf/getPdf',
+    method: 'post',
+    responseType: 'blob',
+    data: params
+  });
+};
+
+// 导出为PNG
+export const getPNGAsync: any = (params: any) => {
+  return http.request({
+    url: '/huajian/pdf/getPNG',
     method: 'get',
     responseType: 'blob',
     params: params
+  });
+};
+
+// 增加resume导出次数
+export const addMakeResumeCountAsync: any = () => {
+  return http.request({
+    url: '/huajian/pdf/addMakeResumeCount',
+    method: 'get'
   });
 };
 
@@ -111,5 +129,39 @@ export const getMyContributeTemplateListAsync: any = (params: any) => {
     url: '/huajian/resume/getMyContributeTemplateList',
     method: 'get',
     params: params
+  });
+};
+
+// 管理员查询模板分类列表
+export const getTemplateCategoryListAsync: any = () => {
+  return http.request({
+    url: '/huajian/resume/getTemplateCategoryList',
+    method: 'get'
+  });
+};
+
+// 新增分类
+export const templateCategoryAddAsync: any = (data: any) => {
+  return http.request({
+    url: '/huajian/resume/templateCategoryAdd',
+    method: 'post',
+    data: data
+  });
+};
+
+// 修改分类
+export const templateCategoryUpdateAsync: any = (data: any) => {
+  return http.request({
+    url: '/huajian/resume/templateCategoryUpdate',
+    method: 'put',
+    data: data
+  });
+};
+
+// 删除分类
+export const templateCategoryDeleteAsync: any = (id: string) => {
+  return http.request({
+    url: `/huajian/resume/templateCategoryDelete/${id}`,
+    method: 'delete'
   });
 };

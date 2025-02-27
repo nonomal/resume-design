@@ -1,7 +1,13 @@
 <template>
   <div class="design-box">
     <!-- 导航栏 -->
-    <design-nav ref="navRef" @generate-report="generateReport" @reset="reset"></design-nav>
+    <design-nav
+      ref="navRef"
+      @generate-report="generateReport"
+      @generate-report-new="generateReportNew"
+      @reset="reset"
+      @publish-comment="publishComment"
+    ></design-nav>
     <!-- 内容区域 -->
     <div class="bottom">
       <!-- 左侧添加模块区域 -->
@@ -11,31 +17,62 @@
           <model-list :key="refreshUuid" :left-show-status="leftShowStatus"></model-list>
         </c-scrollbar>
       </div>
-
       <!-- 预览区域 -->
-      <div :key="refreshUuid" class="center">
-        <div ref="html2Pdf" class="design">
-          <div ref="htmlContentPdf" class="design-content">
-            <component :is="custom" @content-height-change="contentHeightChange" />
+      <div id="print" class="center">
+        <!-- 放大缩小 -->
+        <zoom-and-out @add-size="addSize" @reduce-size="reduceSize"></zoom-and-out>
+        <component :is="resumeBackgroundName" :key="refreshUuid" ref="html2Pdf">
+          <!-- 内容区域 -->
+          <div ref="htmlContentPdf" :key="refreshUuid" class="design-content">
+            <component :is="custom" ref="customRef" @content-height-change="contentHeightChange" />
           </div>
           <!-- 分页线 -->
-          <template v-if="linesNumber > 0">
+          <template v-if="linesNumber > 0 && !isprinting">
             <div
               v-for="(item, index) in linesNumber"
               :ref="(el) => setLinesRef(el, index)"
               :key="index"
               class="lines"
-              :style="{ top: `${1128 + 1132 * index}px` }"
+              :style="{ top: `${1158 + 1160 * index}px` }"
             >
-              <p class="tips">如果分割线遮挡内容，请通过调整模块上下边距以显示内容！</p>
-              <p class="page">{{ index + 1 }}/{{ linesNumber }}</p>
+              <span class="page-tips-one">第{{ index + 1 }}页</span>
             </div>
           </template>
+        </component>
+
+        <!-- 评论组件 -->
+        <div ref="commentRef">
+          <comment-com
+            v-config:open_comment
+            :comment-type-id="id"
+            comment-type="resumeOnline"
+            width="820px"
+          ></comment-com>
         </div>
+        <!-- 回到顶部 -->
+        <el-backtop :right="365" :bottom="50" target="#print">
+          <div
+            style="
+              height: 100%;
+              width: 100%;
+              background-color: var(--el-bg-color-overlay);
+              box-shadow: var(--el-box-shadow-lighter);
+              text-align: center;
+              line-height: 40px;
+              color: #1989fa;
+              user-select: none;
+              border-radius: 50%;
+              font-size: 14px;
+            "
+          >
+            UP
+          </div>
+        </el-backtop>
       </div>
       <!-- 属性设置面板 -->
-      <div :key="refreshUuid" class="config">
-        <Title :title="cptTitle"></Title>
+      <div :key="refreshUuid" ref="configRef" class="config">
+        <title-config :title="cptTitle" @unfold-or-collapse="unfoldOrCollapseConfig">
+        </title-config>
         <c-scrollbar
           trigger="hover"
           :h-thumb-style="{
@@ -64,6 +101,7 @@
 
 <script setup lang="ts">
   import Title from './components/Title.vue';
+  import TitleConfig from './components/TitleConfig.vue';
   import ModelList from './components/ModelList.vue';
   import GlobalStyleOptionsVue from '@/options/GlobalStyleOptions.vue';
   import custom from '@/template/custom/index.vue';
@@ -77,8 +115,14 @@
   import optionsComponents from '@/utils/registerMaterialOptionsCom';
   import IDESIGNJSON from '@/interface/design';
   import { closeGlobalLoading } from '@/utils/common';
-  import { getTemplateInfoAsync, getResetTemplateInfoAsync } from '@/http/api/resume';
-  import exportPdf from '@/utils/pdf';
+  import {
+    getTemplateInfoAsync,
+    getResetTemplateInfoAsync,
+    addMakeResumeCountAsync
+  } from '@/http/api/resume';
+  import printHtml from '@/utils/print';
+  import resumeBackgroundComponents from '@/utils/registerResumeBackgroundCom';
+  import { exportPdf, exportPNG } from '@/utils/pdf';
 
   const { cptTitle } = storeToRefs(appStore.useSelectMaterialStore);
   const { changeResumeJsonData } = appStore.useResumeJsonNewStore;
@@ -89,13 +133,13 @@
   const { id } = route.query; // 模板id和模板名称
 
   // 查询简历数据，有草稿返回草稿，没有草稿返回简历数据
-  const resetStoreAndLocal = async (isReset = false) => {
+  const resetStoreAndLocal = async (isReset = false, ID = id) => {
     let TEMPLATE_JSON: IDESIGNJSON;
     let data;
     if (isReset) {
-      data = await getResetTemplateInfoAsync(id); // 重置
+      data = await getResetTemplateInfoAsync(ID); // 重置
     } else {
-      data = await getTemplateInfoAsync(id);
+      data = await getTemplateInfoAsync(ID);
     }
     if (data.data.status === 200) {
       TEMPLATE_JSON = data.data.data as IDESIGNJSON;
@@ -108,6 +152,13 @@
     console.log('简历JSON数据', resumeJsonNewStore.value);
   };
   resetStoreAndLocal();
+  provide('resetStoreAndLocal', resetStoreAndLocal);
+
+  const resumeBackgroundName = computed(() => {
+    return resumeJsonNewStore.value.GLOBAL_STYLE.resumeBackgroundCom
+      ? resumeBackgroundComponents[resumeJsonNewStore.value.GLOBAL_STYLE.resumeBackgroundCom]
+      : resumeBackgroundComponents['RESUME_BACKGROUND_DEFAULT'];
+  });
 
   // 生命周期函数
   onMounted(async () => {
@@ -162,7 +213,7 @@
   const dialogVisible = ref<boolean>(false);
   const percentage = ref<number>(10);
   let timer: any = null;
-  const generateReport = async () => {
+  const generateReport = async (type: string) => {
     dialogVisible.value = true;
     timer = setInterval(() => {
       percentage.value += 5;
@@ -171,11 +222,36 @@
         clearInterval(timer);
       }
     }, 500);
-    let token = localStorage.getItem('token') as string;
     let height = htmlContentPdf.value.style.height;
-    await exportPdf(token, id as string, height);
+    if (type === 'pdf') {
+      await exportPdf(id as string, height);
+    } else {
+      await exportPNG(id as string, height);
+    }
+
     clearInterval(timer);
     percentage.value = 100;
+  };
+
+  // 另存为PDF，新的方法
+  const isprinting = ref<boolean>(false);
+  const generateReportNew = async () => {
+    addMakeResumeCountAsync(); // 增加pdf导出次数
+    isprinting.value = true; // 去掉分割线
+    // 重置store选中模块
+    resetSelectModel();
+    await nextTick();
+    const target = document.getElementById('print');
+    if (target) {
+      printHtml(target.innerHTML);
+    }
+    // 打印取消和完成
+    window.onbeforeprint = () => {
+      isprinting.value = true;
+    };
+    window.onafterprint = () => {
+      isprinting.value = false;
+    };
   };
 
   // 关闭进度弹窗
@@ -194,8 +270,8 @@
       for (let entry of entries) {
         height = (entry.target as HTMLElement).offsetHeight;
         linesNumber.value = Math.ceil(height / 1160); // 有几条分割线
-        html2Pdf.value.style.height = 1160 * linesNumber.value + 'px'; // 整个简历的高度
-        htmlContentPdf.value.style.height = html2Pdf.value.style.height;
+        html2Pdf.value.$el.style.height = 1160 * linesNumber.value + 'px'; // 整个简历的高度
+        htmlContentPdf.value.style.height = html2Pdf.value.$el.style.height;
       }
     });
     observer.observe(htmlContentPdf.value); // 监听元素
@@ -243,11 +319,43 @@
       leftRef.value.style.width = '70px';
     }
   };
-  // 页面销毁前自动保存草稿
-  // const navRef = ref<any>(null);
-  // onBeforeUnmount(() => {
-  //   navRef.value.saveDataToLocal();
-  // });
+
+  // 展开或收起属性面板设置
+  const configRef = ref<any>(null);
+  const unfoldOrCollapseConfig = (status: boolean) => {
+    if (status) {
+      configRef.value.style.width = '355px';
+      configRef.value.style.flex = 'inherit';
+    } else {
+      configRef.value.style.flex = 1;
+    }
+  };
+
+  // 添加自定义模块时，左右布局单独处理
+  const customRef = ref<any>(null);
+  const addCustomModelLeftRight = (item: any) => {
+    if (item.layout === 'left') {
+      customRef.value.leftList.push(item);
+    } else {
+      customRef.value.rightList.push(item);
+    }
+  };
+  provide('addCustomModelLeftRight', addCustomModelLeftRight);
+
+  // 放大缩小center
+  const sizeCenter = ref<number>(1);
+  const addSize = (number: number) => {
+    sizeCenter.value = number;
+  };
+  const reduceSize = (number: number) => {
+    sizeCenter.value = number;
+  };
+
+  // 滚动到发表评论区域
+  const commentRef = ref<any>(null);
+  const publishComment = () => {
+    commentRef.value.scrollIntoView({ behavior: 'smooth' });
+  };
 
   // 页面销毁
   onUnmounted(() => {
@@ -265,13 +373,13 @@
     width: 100%;
     box-sizing: border-box;
     overflow: hidden;
-    font-family: 'Microsoft YaHei';
+    min-width: 1375px;
     .bottom {
       display: flex;
       width: 100%;
 
       .left {
-        width: 300px;
+        width: 270px;
         background-color: #fff;
         height: calc(100vh - 50px);
         overflow: auto;
@@ -279,48 +387,47 @@
       }
 
       .center {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
+        // display: flex;
+        // justify-content: center;
+        // align-items: flex-start;
         flex: 1;
         min-width: 840px;
         height: calc(100vh - 50px);
         overflow: auto;
 
         .design {
-          background: white;
+          // background: white;
           width: 820px;
           min-height: 1160px;
-          margin: 30px 0;
-          display: table;
+          margin: 40px auto;
+          display: flex;
           position: relative;
+          zoom: v-bind('sizeCenter');
           .lines {
             z-index: 10;
             width: 820px;
-            height: 24px;
+            height: 4px;
             background: #f3f3f3 url(@/assets/images/paging_bg.png) center top no-repeat;
             user-select: none;
             pointer-events: none;
             position: absolute;
             display: flex;
             align-items: center;
-            .tips {
-              font-size: 9px;
-              color: #c7c7c7;
-            }
-            .page {
-              font-size: 9px;
-              color: #999999;
-            }
-            .page {
+            .page-tips-one {
               position: absolute;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%);
+              top: -17px;
+              right: 0px;
+              font-size: 12px;
+              background: #ff9971;
+              color: #fff;
+              padding: 2px 8px;
+              border-radius: 8px 0 0 0;
             }
           }
           .design-content {
-            font-family: 'Microsoft YaHei';
+            font-family: v-bind(
+              'resumeJsonNewStore.GLOBAL_STYLE.fontFamily ? resumeJsonNewStore.GLOBAL_STYLE.fontFamily : "微软雅黑"'
+            );
           }
         }
       }
@@ -332,6 +439,7 @@
         display: flex;
         flex-direction: column;
         height: calc(100vh - 50px);
+        transition: all 0.3s;
       }
     }
   }

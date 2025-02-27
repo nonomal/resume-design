@@ -2,6 +2,10 @@
 <template>
   <div class="resume-theme-box">
     <el-form label-width="120px" label-position="left">
+      <!-- 简历背景选择 -->
+      <el-form-item label="背景选择:">
+        <resume-background-popover></resume-background-popover>
+      </el-form-item>
       <!-- 左右布局时主题颜色配置 -->
       <template v-if="resumeJsonNewStore.LAYOUT === 'leftRight'">
         <el-form-item label="左侧主题颜色:">
@@ -31,6 +35,23 @@
           v-model="resumeJsonNewStore.GLOBAL_STYLE.themeColor"
           @change="changeThemeColor"
         ></color-picker-custom-vue>
+      </el-form-item>
+      <!-- 字体选择 -->
+      <el-form-item label="字体选择:">
+        <el-select
+          v-model="resumeJsonNewStore.GLOBAL_STYLE.fontFamily"
+          class="m-2"
+          placeholder="请选择字体"
+          @change="secondFontFamilyChange"
+        >
+          <el-option
+            v-for="(item, index) in fontFamilyList"
+            :key="index"
+            :label="item"
+            :value="item"
+            :style="{ fontFamily: item }"
+          />
+        </el-select>
       </el-form-item>
       <!-- 字体大小设置 -->
       <el-form-item label="模块标题字体大小:">
@@ -124,7 +145,7 @@
       </el-form-item>
       <el-divider>间距调整</el-divider>
       <el-form-item label="计数器模式:">
-        <el-switch v-model="countModel" />
+        <el-switch v-model="countModel" @change="handleChangeCountModel" />
       </el-form-item>
       <!-- 模块上下边距设置 -->
       <el-form-item label="模块上外边距:">
@@ -221,9 +242,26 @@
   import { useFontSizeList } from '@/hooks/useFontSizeList';
   import ColorPickerCustomVue from '@/components/ColorPicker/ColorPickerCustom.vue';
   import { IMATERIALITEM } from '@/interface/material';
+  import ResumeBackgroundPopover from '@/components/ResumeBackgroundPopover/ResumeBackgroundPopover.vue';
+  import { useFontFamilyList } from '@/hooks/useFontFamlyList';
 
   const { resumeJsonNewStore } = appStore.useResumeJsonNewStore;
   const countModel = ref<boolean>(false);
+  const localCountModel = localStorage.getItem('countModel');
+  if (localCountModel === '1') {
+    countModel.value = true;
+  } else {
+    countModel.value = false;
+  }
+
+  // 计数器模式变化
+  const handleChangeCountModel = (value: boolean) => {
+    if (value) {
+      localStorage.setItem('countModel', '1');
+    } else {
+      localStorage.setItem('countModel', '0');
+    }
+  };
 
   // 表单数据
   const form = reactive({
@@ -262,8 +300,16 @@
   // 字体大小
   const fontSizeList = useFontSizeList();
 
+  // 字体列表
+  const fontFamilyList = useFontFamilyList();
+
   // 字体粗细
   const fontWeightList = reactive<Array<number>>([100, 200, 300, 400, 500, 600, 700, 800, 900]);
+
+  // 字体变化
+  const secondFontFamilyChange = (value: string) => {
+    console.log(value);
+  };
 
   // 二级标题字体大小发生变化时
   const secondTitleFontSizeChange = (value: string) => {

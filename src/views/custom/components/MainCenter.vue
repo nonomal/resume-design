@@ -2,7 +2,11 @@
   <!-- <c-scrollbar trigger="hover"> -->
   <div class="main-center-box">
     <!-- 设计区域 -->
-    <div ref="html2Pdf" class="design">
+    <component
+      :is="resumeBackgroundName"
+      ref="html2Pdf"
+      @content-height-change="contentHeightChange"
+    >
       <div ref="htmlContentPdf" class="content-box">
         <!-- 传统布局 -->
         <template v-if="resumeJsonNewStore.LAYOUT === 'classical'">
@@ -92,7 +96,7 @@
       </div>
       <!-- 布局模式切换组件 -->
       <mode-switch></mode-switch>
-    </div>
+    </component>
   </div>
 </template>
 <script lang="ts" setup>
@@ -107,6 +111,7 @@
   import { cloneDeep } from 'lodash';
   import IDESIGNJSON from '@/interface/design';
   import { getResetTemplateInfoAsync } from '@/http/api/resume';
+  import resumeBackgroundComponents from '@/utils/registerResumeBackgroundCom';
 
   defineProps<{
     components: any;
@@ -124,6 +129,11 @@
 
   // store相关数据
   const { resumeJsonNewStore } = storeToRefs(appStore.useResumeJsonNewStore);
+  const resumeBackgroundName = computed(() => {
+    return resumeJsonNewStore.value.GLOBAL_STYLE.resumeBackgroundCom
+      ? resumeBackgroundComponents[resumeJsonNewStore.value.GLOBAL_STYLE.resumeBackgroundCom]
+      : resumeBackgroundComponents['RESUME_BACKGROUND_DEFAULT'];
+  });
 
   // 如果传了ID，则通过ID查询数据
   const { changeResumeJsonData } = appStore.useResumeJsonNewStore;
@@ -178,10 +188,18 @@
         console.log('htmlContentPdf高度发生变化', height);
         linesNumber.value = Math.ceil(height / 1160); // 有几条分割线
         console.log('分割线数目', linesNumber.value, height);
-        html2Pdf.value.style.height = 1160 * linesNumber.value + 'px'; // 整个简历的高度
+        console.log('htmlPdf', html2Pdf.value);
+        html2Pdf.value.$el.style.height = 1160 * linesNumber.value + 'px'; // 整个简历的高度
       }
     });
     observer.observe(htmlContentPdf.value); // 监听元素
+  };
+
+  // 子组件内容高度发生变化---需要重新计算高度，触发resizeDOM
+  const contentHeightChange = async () => {
+    await nextTick();
+    resizeDOM();
+    console.log('子组件内容高度发生变化---需要重新计算高度', htmlContentPdf.value.style.height);
   };
 
   // 全局样式设置
@@ -214,7 +232,7 @@
     linesNumber.value = 0;
     resetSelectModel(); // 重置选中模块
     await nextTick();
-    downloadPDF(html2Pdf.value, resumeJsonNewStore.value.TITLE, false, () => {
+    downloadPDF(html2Pdf.value.$el, resumeJsonNewStore.value.TITLE, false, () => {
       linesNumber.value = temp;
     });
   };
@@ -304,7 +322,6 @@
     box-sizing: border-box;
     overflow: auto;
     .design {
-      background: white;
       width: 820px;
       min-height: 1160px;
       display: table;
@@ -316,7 +333,9 @@
           min-height: 300px;
           width: 820px;
           min-height: 1160px;
-          background-color: #fff;
+          font-family: v-bind(
+            'resumeJsonNewStore.GLOBAL_STYLE.fontFamily ? resumeJsonNewStore.GLOBAL_STYLE.fontFamily : "微软雅黑"'
+          );
           box-sizing: border-box;
           position: relative;
           z-index: 0;

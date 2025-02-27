@@ -2,8 +2,8 @@
 <template>
   <div ref="customTempleRef" class="custom-template-box">
     <introduce-title-vue
-      title="自定义模板 + 随心所欲"
-      subtitle="自定义模板，随意搭配，自定义主题"
+      title="自定义模板"
+      subtitle="自定义在线制作的模板，随意搭配，自定义主题"
       title-color="#000"
       subtitle-color="#7f8b96"
     ></introduce-title-vue>
@@ -50,7 +50,6 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: #fff;
     .bottom {
       display: flex;
       justify-content: space-between;

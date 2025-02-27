@@ -26,11 +26,11 @@
               separator=","
               :duration="4000"
             ></count-to>
-            <span>人</span>
+            <span>次</span>
           </p>
           <h1>累计访问量</h1>
         </li>
-        <li>
+        <li v-config:open_sign>
           <svg-icon
             icon-name="icon-renwu-ren"
             class-name="juejin"
@@ -106,7 +106,6 @@
   const numberRef3 = ref<any>(null);
   const ulNumberRef = ref<any>(null);
   onMounted(() => {
-    console.log('numberRef1', numberRef1);
     const { stop } = useIntersectionObserver(
       ulNumberRef.value,
       // isIntersecting 是否进入可视区域，true是进入 false是移出
@@ -126,7 +125,6 @@
   .data-show-box {
     width: 100%;
     min-height: 600px;
-    background-color: #fff;
     display: flex;
     flex-direction: column;
     .list-box {
@@ -166,7 +164,7 @@
               margin-left: 3px;
             }
             .number {
-              font-size: 55px;
+              font-size: 40px;
             }
           }
         }

@@ -14,6 +14,9 @@
 html {
   line-height: 1.15; /* 1 */
   -webkit-text-size-adjust: 100%; /* 2 */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 /* Sections
@@ -25,7 +28,12 @@ html {
 
 body {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   background-color: #f3f3f3;
+}
+body::-webkit-scrollbar {
+  /* display: none; */
 }
 
 /**
@@ -47,7 +55,8 @@ h1 {
   padding: 0;
 }
 
-ul {
+ul,
+ol {
   margin: 0;
   padding: 0;
 }
@@ -55,6 +64,7 @@ ul {
 p {
   margin: 0;
   padding: 0;
+  word-break: break-all;
 }
 
 /* Grouping content
@@ -387,3 +397,33 @@ template {
   background-color: rgb(159, 159, 159);
 }
 
+.el-button {
+  padding: 8px 10px;
+}
+.el-dialog__body {
+  max-height: 80vh;
+  overflow: auto;
+}
+
+* {
+  -webkit-print-color-adjust: exact !important; /*Chrome, Safari */
+  color-adjust: exact !important; /*Firefox*/
+  outline: none;
+}
+
+.el-message {
+  z-index: 99999 !important;
+}
+
+.el-popper {
+  max-width: 60vw !important;
+}
+
+.el-dialog__header {
+  height: 60px;
+  margin: 0;
+  border-bottom: 1px solid #eee;
+}
+.el-dialog {
+  margin: 0;
+}

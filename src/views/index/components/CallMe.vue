@@ -1,6 +1,6 @@
 <template>
   <div class="call-me-box">
-    <el-popover :width="200" trigger="hover" placement="left" teleported>
+    <el-popover popper-class="vxqun-popover-box" trigger="hover" placement="left" teleported>
       <template #reference>
         <span class="contact-me">
           <svg-icon icon-name="icon-qunzuduoren" color="#fff" size="20px"></svg-icon>
@@ -12,8 +12,17 @@
           <h1>进入微信群</h1>
           <p>进入交流群，迅速解答疑问！</p>
         </div>
-        <div class="vx-img">
-          <img class="bgc-img" src="@/assets/images/vx-qun.jpg" alt="" />
+        <div v-viewer class="vx-img">
+          <div v-if="vxQunList.length" class="qun-box-img">
+            <img
+              v-for="(item, index) in vxQunList"
+              :key="index"
+              :src="item.qr_code"
+              :alt="item.name"
+              srcset=""
+            />
+          </div>
+          <img v-else class="bgc-img" src="@/assets/images/vx-qun.jpg" alt="" />
         </div>
       </div>
     </el-popover>
@@ -46,14 +55,14 @@
         <svg-icon icon-name="icon-gitee-fill-round" color="#fff" size="20px"></svg-icon>
       </a>
     </el-tooltip>
-    <el-tooltip class="box-item" effect="light" content="github求个star" placement="left">
+    <el-tooltip class="box-item" effect="light" content="问题或建议反馈" placement="left">
       <a
-        href="https://github.com/Hacker233/resume-design"
+        href="https://github.com/huajian-pro/resume-design/issues"
         target="_blank"
         rel="noopener noreferrer"
         class="contact-me"
       >
-        <svg-icon icon-name="icon-github-fill" color="#fff" size="20px"></svg-icon>
+        <svg-icon icon-name="icon-wenti" color="#fff" size="20px"></svg-icon>
       </a>
     </el-tooltip>
     <!-- 管理员入口 -->
@@ -74,6 +83,7 @@
   </div>
 </template>
 <script setup lang="ts">
+  import { getVXQunListUnauthAsync } from '@/http/api/website';
   import appStore from '@/store';
 
   // 跳转至管理员页面
@@ -81,6 +91,23 @@
   const toAdmin = () => {
     router.push('/admin');
   };
+
+  // 查询微信微信群列表
+  const vxQunList = ref<any>([]);
+  const getVXQunListUnauth = async () => {
+    vxQunList.value = [];
+    const data = await getVXQunListUnauthAsync();
+    if (data.status === 200) {
+      data.data.map((item: { name: string }) => {
+        if (item.name === '猫步简历微信交流群') {
+          vxQunList.value.push(item);
+        }
+      });
+    } else {
+      ElMessage.error(data.data.message);
+    }
+  };
+  getVXQunListUnauth();
 </script>
 <style lang="scss" scoped>
   .call-me-box {
@@ -90,6 +117,7 @@
     transform: translate(0, -50%);
     display: flex;
     flex-direction: column;
+    z-index: 1;
     .contact-me {
       width: 40px;
       height: 40px;
@@ -137,9 +165,24 @@
     .vx-img {
       width: 100%;
       overflow: hidden;
+      .qun-box-img {
+        display: flex;
+        justify-content: space-between;
+        img {
+          width: 150px;
+          height: 200px;
+          margin: 10px;
+          border: 1px solid #eee;
+        }
+      }
       .bgc-img {
         width: 100%;
       }
     }
+  }
+</style>
+<style lang="scss">
+  .vxqun-popover-box {
+    width: inherit !important;
   }
 </style>

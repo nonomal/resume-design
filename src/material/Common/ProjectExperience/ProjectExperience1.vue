@@ -6,18 +6,22 @@
       <div v-for="(item, index) in modelData.LIST" :key="index" class="list">
         <ul>
           <!-- 经历时间 -->
-          <li class="list-title">{{ formatDate(item.date) }}</li>
+          <li v-if="modelData.isShow.date" class="list-title">{{ formatDate(item.date) }}</li>
           <!-- 公司名称 -->
-          <li class="list-title">{{ item.projectName }}</li>
+          <li v-if="modelData.isShow.projectName" class="list-title">{{ item.projectName }}</li>
           <!-- 主要职责 -->
-          <li class="list-title">{{ item.posts }}</li>
+          <li v-if="modelData.isShow.posts" class="list-title">{{ item.posts }}</li>
         </ul>
         <!-- 简述 -->
         <div class="job-content">
           <p class="left">项目内容</p>
           <div class="content-list">
             <ul>
-              <li v-for="(list, j) in item.projectContent" :key="j">{{ list.content }}</li>
+              <li
+                v-for="(list, j) in item.projectContent"
+                :key="j"
+                v-dompurify-html="list.content"
+              ></li>
             </ul>
           </div>
         </div>

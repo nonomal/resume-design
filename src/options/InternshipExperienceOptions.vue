@@ -46,14 +46,9 @@
             :key="cIndex"
             label="工作内容:"
           >
-            <el-input
-              v-model="content.content"
-              type="textarea"
-              maxlength="200"
-              show-word-limit
-              :rows="3"
-            />
+            <comm-editor v-model="content.content"></comm-editor>
             <el-button
+              :disabled="cIndex === 0"
               type="danger"
               :icon="SemiSelect"
               circle

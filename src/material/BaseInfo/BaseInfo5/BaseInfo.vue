@@ -5,7 +5,7 @@
       <div class="left">
         <h1>{{ modelData.name }}</h1>
         <!-- 一句话简介 -->
-        <p v-show="isShow.abstract" class="user-abstract">{{ modelData.abstract }}</p>
+        <p v-show="isShow.abstract" v-dompurify-html="modelData.abstract" class="user-abstract"></p>
         <!-- 年龄、地点、经验等信息 -->
         <ul>
           <li v-show="isShow.age" class="li-border">{{ modelData.age }}岁</li>
@@ -15,15 +15,27 @@
           <li v-show="isShow.email">{{ modelData.email }}</li>
         </ul>
       </div>
-      <div v-show="modelData.isShow.avatar" class="avatar-box">
-        <el-image style="width: 120px; height: 150px" :src="modelData.avatar" />
-      </div>
+      <!-- 个人头像 -->
+      <template v-if="!modelData.avatarShape">
+        <div v-show="isShow.avatar" class="avatar-box">
+          <el-image style="width: 115px; height: 145px" :src="modelData.avatar" />
+        </div>
+      </template>
+      <template v-else>
+        <div v-show="isShow.avatar" class="avatar-shape-box">
+          <component
+            :is="avatarComponents[modelData.avatarShape]"
+            :model-data="modelData"
+          ></component>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
   import { IBASEINFO } from '@/interface/model';
   import IMODELSTYLE from '@/interface/modelStyle';
+  import avatarComponents from '@/utils/registerAvatarCom';
 
   const props = defineProps<{
     modelData: IBASEINFO; // 模块数据
@@ -44,7 +56,7 @@
     margin-top: v-bind('modelStyle.mTop');
     .user-info {
       display: flex;
-
+      align-items: center;
       .left {
         flex: 1;
         display: flex;
@@ -53,6 +65,7 @@
         padding-left: 40px;
         margin-right: 20px;
         background-color: v-bind('modelStyle.themeColor');
+        min-height: 140px;
         h1 {
           margin: 0;
           font-size: v-bind('modelStyle.titleFontSize');
@@ -88,7 +101,7 @@
     }
 
     .avatar-box {
-      width: 120px;
+      width: 118px;
       height: 150px;
       overflow: hidden;
       background-color: #eee;

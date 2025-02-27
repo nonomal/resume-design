@@ -5,10 +5,10 @@
     :show-close="false"
     :close-on-click-modal="false"
     append-to-body
-    custom-class="import-json"
+    class="import-json"
   >
     <!-- 头部 -->
-    <template #title>
+    <template #header>
       <div class="header">
         <div class="header-left">
           <h1 class="title">请在编辑器内输入简历JSON数据，格式如下：</h1>
@@ -202,9 +202,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    .el-dialog {
-      padding: 0;
-      margin: 0;
-    }
+    // .el-dialog {
+    //   padding: 0;
+    //   margin: 0;
+    // }
   }
 </style>
